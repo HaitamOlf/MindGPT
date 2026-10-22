@@ -1,0 +1,87 @@
+name: Bicep What-If
+
+# ARCHITECTURE.md §7.1: `what-if` on every PR that touches infra/, before anything reaches
+# main. Auths to Azure via OIDC federated credentials (no stored cloud secret in GitHub) —
+# requires an Entra app registration with a federated credential scoped to this repo/branch
+# and AZURE_CLIENT_ID / AZURE_TENANT_ID / AZURE_SUBSCRIPTION_ID set as repo variables or
+# secrets (see infra/README.md "CI/CD prerequisites"). Skips cleanly when they're absent.
+# Action refs are pinned to commit SHAs (infra/README.md "Pinning actions").
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/bicep-whatif.yml'
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: bicep-whatif-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  what-if:
+    runs-on: ubuntu-latest
+    environment: build
+    steps:
+      - name: Check Azure OIDC secrets
+        id: creds
+        run: |
+          if [ -n "${{ secrets.AZURE_CLIENT_ID }}" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Azure OIDC secrets not set — skipping what-if (see infra/README.md CI/CD prerequisites)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.creds.outputs.ready == 'true'
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Azure login (OIDC)
+        if: steps.creds.outputs.ready == 'true'
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Lint Bicep
+        if: steps.creds.outputs.ready == 'true'
+        working-directory: infra
+        run: az bicep build --file main.bicep
+
+      - name: What-if
+        if: steps.creds.outputs.ready == 'true'
+        working-directory: infra
+        run: |
+          az deployment sub what-if \
+            --name "bicep-whatif-${{ github.run_id }}" \
+            --location francecentral \
+            --template-file main.bicep \
+            --parameters main.bicepparam \
+            --no-pretty-print | tee "${{ runner.temp }}/whatif-output.txt"
+
+      - name: Comment what-if result on PR
+        if: steps.creds.outputs.ready == 'true'
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const outputPath = path.join(process.env.RUNNER_TEMP, 'whatif-output.txt');
+            const output = fs.readFileSync(outputPath, 'utf8').slice(-60000);
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `### Bicep what-if (BUILD tier)\n<details><summary>Show plan</summary>\n\n\`\`\`\n${output}\n\`\`\`\n</details>`
+            });
+
+      - name: Azure logout
+        if: always() && steps.creds.outputs.ready == 'true'
+        run: az logout

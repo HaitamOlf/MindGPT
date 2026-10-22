@@ -1,0 +1,49 @@
+{
+    "catastrophizing": {
+      "definition": "Assuming the worst possible outcome will occur.",
+      "indicators": [
+        "Everything will go wrong",
+        "I will fail no matter what"
+      ],
+      "counter_strategies": [
+        "Examine realistic probabilities",
+        "Identify controllable factors",
+        "Reframe worst-case thinking"
+      ]
+    },
+    "all_or_nothing": {
+      "definition": "Viewing situations in black-and-white terms.",
+      "indicators": [
+        "If I fail once, I'm a failure",
+        "It has to be perfect"
+      ],
+      "counter_strategies": [
+        "Encourage nuance",
+        "Highlight partial success",
+        "Normalize imperfection"
+      ]
+    },
+    "overgeneralization": {
+      "definition": "Drawing broad conclusions from a single event.",
+      "indicators": [
+        "This always happens",
+        "I never succeed"
+      ],
+      "counter_strategies": [
+        "Focus on specific instances",
+        "Challenge sweeping statements"
+      ]
+    },
+    "mind_reading": {
+      "definition": "Assuming you know what others think without evidence.",
+      "indicators": [
+        "They think I'm incompetent",
+        "Everyone is judging me"
+      ],
+      "counter_strategies": [
+        "Request evidence",
+        "Offer alternative interpretations"
+      ]
+    }
+  }
+  

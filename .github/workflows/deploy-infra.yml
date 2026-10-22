@@ -1,0 +1,71 @@
+name: Deploy Infrastructure
+
+# Deploys the BUILD tier on every push to main that touches infra/. Gated by the "build"
+# GitHub Environment — configure required reviewers on that environment so no deployment
+# runs without a human approval (ARCHITECTURE.md §7.1 "environment protection rules").
+# OIDC auth only; see bicep-whatif.yml for the federated-credential prerequisites.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/deploy-infra.yml'
+  workflow_dispatch:
+    inputs:
+      deployDocumentTier:
+        description: 'Also deploy the DOCUMENT tier (costs money — see docs/ARCHITECTURE.md §3)'
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-infra
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: build
+    steps:
+      # Skip cleanly (green no-op) when OIDC isn't configured yet, instead of failing at
+      # Azure login. Set AZURE_CLIENT_ID / AZURE_TENANT_ID / AZURE_SUBSCRIPTION_ID to enable.
+      - name: Check Azure OIDC secrets
+        id: creds
+        run: |
+          if [ -n "${{ secrets.AZURE_CLIENT_ID }}" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Azure OIDC secrets not set — skipping deploy (see infra/README.md CI/CD prerequisites)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.creds.outputs.ready == 'true'
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Azure login (OIDC)
+        if: steps.creds.outputs.ready == 'true'
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy
+        if: steps.creds.outputs.ready == 'true'
+        working-directory: infra
+        run: |
+          az deployment sub create \
+            --name "bicep-deploy-${{ github.run_id }}" \
+            --location francecentral \
+            --template-file main.bicep \
+            --parameters main.bicepparam \
+            --parameters deployDocumentTier=${{ inputs.deployDocumentTier || false }}
+
+      - name: Azure logout
+        if: always() && steps.creds.outputs.ready == 'true'
+        run: az logout

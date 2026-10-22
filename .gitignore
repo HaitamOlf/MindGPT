@@ -1,0 +1,51 @@
+# ---- Secrets / env (NEVER commit) ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*service-account*.json
+*firebase-adminsdk*.json
+local.settings.json
+azure.auth
+
+# ---- Python (backend / functions tooling) ----
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---- Node (frontend / functions) ----
+node_modules/
+dist/
+dist-ssr/
+*.local
+.firebase/
+# Scope JS build output to the frontend — a bare `build/` also matches the infra source
+# directory `infra/modules/build/` (the BUILD tier) and would silently drop all its modules.
+frontend/build/
+
+# ---- IaC / Azure ----
+*.tfstate
+*.tfstate.*
+.bicep/
+bin/
+obj/
+
+# ---- Editor / OS ----
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.swp
+
+# ---- Logs ----
+*.log
+npm-debug.log*
