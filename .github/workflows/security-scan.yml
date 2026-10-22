@@ -23,7 +23,7 @@ jobs:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
       # Run gitleaks via its pinned container instead of the Marketplace action, which asks
@@ -45,18 +45,18 @@ jobs:
       matrix:
         language: ['javascript-typescript', 'python']
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: github/codeql-action/init@9f759ee644a3e7c15c1390abf49868036c00067b # v3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v3
         with:
           languages: ${{ matrix.language }}
-      - uses: github/codeql-action/autobuild@9f759ee644a3e7c15c1390abf49868036c00067b # v3
-      - uses: github/codeql-action/analyze@9f759ee644a3e7c15c1390abf49868036c00067b # v3
+      - uses: github/codeql-action/autobuild@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v3
+      - uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v3
 
   iac-scan:
     name: IaC scan (Checkov)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Checkov
         uses: bridgecrewio/checkov-action@6f26dc90000b74feb589a906cdfae540f5119895 # v12
         with:
@@ -69,7 +69,7 @@ jobs:
       # SARIF upload needs code scanning (public repo); skip while private.
       - name: Upload SARIF
         if: ${{ always() && !github.event.repository.private }}
-        uses: github/codeql-action/upload-sarif@9f759ee644a3e7c15c1390abf49868036c00067b # v3
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v3
         with:
           sarif_file: checkov-results.sarif
 
@@ -77,7 +77,7 @@ jobs:
     name: Container image scan (Trivy)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Check for backend Dockerfile
         id: check
         run: |
@@ -91,7 +91,7 @@ jobs:
         run: docker build -t mindgpt-api:scan ./backend
       - name: Trivy scan
         if: steps.check.outputs.exists == 'true'
-        uses: aquasecurity/trivy-action@6abccf398f78b4c337599c0656f933d91efb91a0 # master (pin; was a moving branch)
+        uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87 # master (pin; was a moving branch)
         with:
           image-ref: mindgpt-api:scan
           format: sarif
@@ -101,6 +101,6 @@ jobs:
           exit-code: '0'        # advisory: report to the Security tab, don't block the build
       - name: Upload SARIF
         if: ${{ always() && steps.check.outputs.exists == 'true' && !github.event.repository.private }}
-        uses: github/codeql-action/upload-sarif@9f759ee644a3e7c15c1390abf49868036c00067b # v3
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v3
         with:
           sarif_file: trivy-results.sarif
