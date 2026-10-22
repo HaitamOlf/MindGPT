@@ -3,9 +3,9 @@
 # builds on linux/amd64 so platform-specific extras (e.g. uvloop) resolve correctly there.
 # Versions confirmed current via a real `pip install` + `pip freeze` on 2026-10-06, not
 # guessed. Dependabot (.github/dependabot.yml) keeps these current once this file exists.
-fastapi==0.142.2
+fastapi==0.149.0
 uvicorn[standard]==0.54.0
-pydantic-settings==2.15.0
+pydantic-settings==2.16.0
 
 # Azure SDKs — auth via managed identity (DefaultAzureCredential), never keys.
 azure-identity==1.26.0
@@ -24,7 +24,7 @@ azure-storage-blob==12.31.0
 python-multipart==0.0.32
 # Azure OpenAI inference (gpt-5-mini chat + text-embedding-3-small) via Entra auth — the
 # resource has disableLocalAuth, so this is used with a bearer-token provider, never a key.
-openai==3.29.0
+openai==3.35.1
 
 # JWT validation for Entra External ID — [crypto] extra pulls in `cryptography` for
 # RS256 signature verification, required (PyJWT doesn't vendor a crypto backend itself).
