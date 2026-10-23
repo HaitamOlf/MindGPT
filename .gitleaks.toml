@@ -1,0 +1,42 @@
+# gitleaks configuration — used by the Security Scan workflow's secret-scan job.
+#
+# Every match gitleaks' generic high-entropy rule produces in this repo is a PUBLIC,
+# non-secret identifier. They are allowlisted by EXACT VALUE (not by disabling the scanner or
+# exempting whole files), so gitleaks stays a real gate for anything that isn't one of these
+# known-public constants.
+#
+#   1. Microsoft Entra External ID (CIAM) OIDC identifiers — the tenant ID, the SPA and API
+#      app (client) IDs, and the API scope URI. A single-page app ships these in its browser
+#      bundle by design; documented as non-secret in docs/ENTRA_SETUP.md and the .env.example
+#      files.
+#   2. Azure built-in role-definition IDs referenced in the Bicep RBAC assignments. These are
+#      universal constants published by Microsoft — identical in every Azure tenant — not
+#      credentials. (https://learn.microsoft.com/azure/role-based-access-control/built-in-roles)
+
+title = "MindGPT"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Public Entra OIDC identifiers + public Azure built-in role-definition IDs — not secrets"
+regexes = [
+  # --- Entra External ID (CIAM) public OIDC identifiers ---
+  '''cdae0a70-3b69-46b1-abb0-d9957189cbdd''', # tenant ID
+  '''c1f92635-804d-4d67-9376-72b4e08080e1''', # API app (client) ID / token audience
+  '''79f16370-a10e-4851-bf6b-fb5dfbac210d''', # SPA app (client) ID
+  # --- Azure built-in role-definition IDs (public, universal) ---
+  '''00000000-0000-0000-0000-000000000002''', # Cosmos DB built-in data contributor
+  '''4633458b-17de-408a-b874-0445c86b69e6''', # Key Vault Secrets User
+  '''5e0bd9bd-7b93-4f28-af87-19fc36ad61bd''', # Cognitive Services OpenAI User
+  '''7f951dda-4ed3-4680-a7ca-43fe172d538d''', # AcrPull
+  '''8ebe5a00-799e-43f5-93ac-243d3dce84a7''', # Search Index Data Contributor
+  '''974c5e8b-45b9-4653-ba55-5f855dd0fb88''', # Storage Queue Data Contributor
+  '''a97b65f3-24c7-4388-baec-2e87135dc908''', # Cognitive Services User
+  '''b7e6dc6d-f1e8-4753-8033-0f276bb0955b''', # Storage Blob Data Owner
+  '''ba92f5b4-2d11-453d-a403-e96b0029c9fe''', # Storage Blob Data Contributor
+]
+# .env.example files are templates holding only placeholders + the public IDs above.
+paths = [
+  '''.*\.env\.example$''',
+]
