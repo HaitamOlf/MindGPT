@@ -1,0 +1,106 @@
+name: Security Scan
+
+# ARCHITECTURE.md §7.1 — scanners on every push/PR to main. Note the GitHub platform reality:
+# CodeQL and SARIF "code scanning" upload require a PUBLIC repo (or paid GitHub Advanced
+# Security), so those steps are gated to public repos and simply skip while the repo is
+# private. gitleaks runs everywhere as a hard gate (no license needed via the container).
+# Checkov/Trivy run everywhere and report; they're advisory (results go to the Security tab
+# on a public repo) rather than hard-blocking a solo project on an unfixable base-image CVE.
+# Dependency scanning is handled separately by Dependabot (.github/dependabot.yml).
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      # Run gitleaks via its pinned container instead of the Marketplace action, which asks
+      # for a license on non-public repos. This is a real gate: a leak exits non-zero and
+      # fails the job. Scans the full history (fetch-depth: 0 above).
+      - name: gitleaks
+        run: |
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:v8.18.4 \
+            detect --source=/repo --config=/repo/.gitleaks.toml --redact --no-banner --exit-code 1
+
+  codeql:
+    name: SAST (CodeQL)
+    runs-on: ubuntu-latest
+    # Code scanning (CodeQL analyze + SARIF upload) is free only on public repos; skip
+    # entirely while private so it doesn't fail on an unavailable feature.
+    if: ${{ !github.event.repository.private }}
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript-typescript', 'python']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: github/codeql-action/init@9f759ee644a3e7c15c1390abf49868036c00067b # v3
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/autobuild@9f759ee644a3e7c15c1390abf49868036c00067b # v3
+      - uses: github/codeql-action/analyze@9f759ee644a3e7c15c1390abf49868036c00067b # v3
+
+  iac-scan:
+    name: IaC scan (Checkov)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@6f26dc90000b74feb589a906cdfae540f5119895 # v12
+        with:
+          directory: infra
+          framework: bicep
+          output_format: sarif
+          output_file_path: checkov-results.sarif
+          # Advisory: surface findings without hard-failing the build. Flip to false to gate.
+          soft_fail: true
+      # SARIF upload needs code scanning (public repo); skip while private.
+      - name: Upload SARIF
+        if: ${{ always() && !github.event.repository.private }}
+        uses: github/codeql-action/upload-sarif@9f759ee644a3e7c15c1390abf49868036c00067b # v3
+        with:
+          sarif_file: checkov-results.sarif
+
+  container-scan:
+    name: Container image scan (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check for backend Dockerfile
+        id: check
+        run: |
+          if [ -f "backend/Dockerfile" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build image
+        if: steps.check.outputs.exists == 'true'
+        run: docker build -t mindgpt-api:scan ./backend
+      - name: Trivy scan
+        if: steps.check.outputs.exists == 'true'
+        uses: aquasecurity/trivy-action@6abccf398f78b4c337599c0656f933d91efb91a0 # master (pin; was a moving branch)
+        with:
+          image-ref: mindgpt-api:scan
+          format: sarif
+          output: trivy-results.sarif
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true  # don't flag CVEs with no upstream fix (base image noise)
+          exit-code: '0'        # advisory: report to the Security tab, don't block the build
+      - name: Upload SARIF
+        if: ${{ always() && steps.check.outputs.exists == 'true' && !github.event.repository.private }}
+        uses: github/codeql-action/upload-sarif@9f759ee644a3e7c15c1390abf49868036c00067b # v3
+        with:
+          sarif_file: trivy-results.sarif
