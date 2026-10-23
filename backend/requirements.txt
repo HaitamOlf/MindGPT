@@ -1,0 +1,31 @@
+# Direct dependencies only, pinned exact. Transitive deps (anyio, starlette, h11, uvloop
+# on Linux, etc.) are resolved by pip at build time from these — see Dockerfile, which
+# builds on linux/amd64 so platform-specific extras (e.g. uvloop) resolve correctly there.
+# Versions confirmed current via a real `pip install` + `pip freeze` on 2026-10-06, not
+# guessed. Dependabot (.github/dependabot.yml) keeps these current once this file exists.
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
+pydantic-settings==2.15.0
+
+# Azure SDKs — auth via managed identity (DefaultAzureCredential), never keys.
+azure-identity==1.26.0
+# Prerelease (1.1.0b1), deliberately: Prompt Shields (shield_prompt) does not exist in
+# the stable 1.0.0 release yet — verified by installing both and inspecting the actual
+# client methods on 2026-10-06, not assumed. Re-check for a stable release before
+# pinning elsewhere.
+azure-ai-contentsafety==1.1.0b1
+azure-ai-textanalytics==5.4.0
+azure-search-documents==12.0.0
+azure-cosmos==4.17.1
+# Blob storage for user image uploads — private container, no shared key: the API writes
+# via managed identity and serves reads through short-lived user-delegation SAS.
+azure-storage-blob==12.31.0
+# Multipart form parsing for FastAPI UploadFile (the image upload route).
+python-multipart==0.0.32
+# Azure OpenAI inference (gpt-5-mini chat + text-embedding-3-small) via Entra auth — the
+# resource has disableLocalAuth, so this is used with a bearer-token provider, never a key.
+openai==3.29.0
+
+# JWT validation for Entra External ID — [crypto] extra pulls in `cryptography` for
+# RS256 signature verification, required (PyJWT doesn't vendor a crypto backend itself).
+PyJWT[crypto]==2.15.1
