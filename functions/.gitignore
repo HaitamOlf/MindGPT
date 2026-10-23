@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Azure Functions local dev — holds local connection settings; never commit it.
+local.settings.json
+
+# Functions build/runtime artifacts
+.python_packages/
+bin/
+obj/
