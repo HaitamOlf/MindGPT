@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-700;
+  }
+
+  html {
+    font-size: 17px;
+    /* Increased base font size for better readability */
+  }
+
+  body {
+    @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+    font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+      "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 1rem;
+    line-height: 1.6;
+    /* Improved line height for readability */
+  }
+
+  /* Global UI scaling - holistic approach */
+  /* Base font size increased to 17px provides foundation for all rem-based scaling */
+  /* This naturally scales typography, spacing, and component sizes that use rem units */
+
+  /* Scale up headings for better hierarchy and readability */
+  h1 {
+    font-size: 2.25rem;
+    /* ~38px at 17px base */
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: 1.875rem;
+    /* ~32px at 17px base */
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    /* ~25.5px at 17px base */
+    line-height: 1.4;
+  }
+
+  /* Scale up common UI elements for better readability and touch targets */
+  /* Apply to buttons that don't have explicit size constraints */
+  button:not(.icon-button) {
+    font-size: 0.9375rem;
+    /* ~16px at 17px base */
+    min-height: 2.5rem;
+    /* Increased minimum height for better touch targets */
+    padding: 0.5rem 1rem;
+    /* Scaled padding */
+  }
+
+  /* Icon-only buttons - override global styles to maintain size and icon visibility */
+  button.icon-button {
+    min-height: unset !important;
+    padding: 0 !important;
+    font-size: inherit;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 0.9375rem;
+    /* ~16px at 17px base */
+    min-height: 2.5rem;
+    /* Increased minimum height for better touch targets */
+    padding: 0.5rem 0.75rem;
+    /* Scaled padding */
+  }
+
+  /* Enhanced text sizes for better readability */
+  /* These complement Tailwind's text utilities by providing larger base sizes */
+  .text-xs {
+    font-size: 0.8125rem;
+    /* ~13.8px at 17px base, up from ~12px */
+  }
+
+  .text-sm {
+    font-size: 0.9375rem;
+    /* ~15.9px at 17px base, up from ~14px */
+  }
+
+  .text-base {
+    font-size: 1.0625rem;
+    /* ~18px at 17px base, up from 16px */
+  }
+
+  /* Scale up component proportions */
+  .rounded-2xl {
+    border-radius: 1.1rem;
+    /* Slightly larger radius for scaled feel */
+  }
+
+  /* Scale up common component spacing - applied via CSS to complement Tailwind */
+  /* Chat bubbles, cards, and containers benefit from increased spacing */
+  .rounded-2xl.px-5 {
+    padding-left: 1.375rem;
+    /* Scaled from 1.25rem */
+    padding-right: 1.375rem;
+  }
+
+  .rounded-2xl.py-3 {
+    padding-top: 0.875rem;
+    /* Scaled from 0.75rem */
+    padding-bottom: 0.875rem;
+  }
+
+  .rounded-2xl.py-4 {
+    padding-top: 1.125rem;
+    /* Scaled from 1rem */
+    padding-bottom: 1.125rem;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .animate-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradient-shift 12s ease infinite;
+  }
+}
+
+@layer components {
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out forwards;
+  }
+
+  .animate-fade-in-left {
+    animation: fade-in-left 0.6s ease-out forwards;
+  }
+}
+
+/* Smooth transitions for better perceived performance */
+button,
+a,
+input,
+select,
+textarea {
+  transition-property: color, background-color, border-color, opacity, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Optimize scroll performance */
+.scrollbar-hide {
+  will-change: scroll-position;
+}
