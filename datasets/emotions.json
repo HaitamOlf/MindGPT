@@ -1,0 +1,79 @@
+{
+    "anxiety": {
+      "description": "Persistent worry, nervousness, or fear about future events.",
+      "tone": "calm, reassuring, structured",
+      "do": [
+        "Normalize the feeling",
+        "Encourage grounding and breathing",
+        "Break problems into small steps",
+        "Offer reassurance without guarantees"
+      ],
+      "avoid": [
+        "Dismissing concerns",
+        "Over-optimistic promises",
+        "Urgency or pressure"
+      ]
+    },
+    "stress": {
+      "description": "Mental or emotional strain caused by demanding circumstances.",
+      "tone": "empathetic, practical, supportive",
+      "do": [
+        "Acknowledge workload",
+        "Encourage prioritization",
+        "Suggest rest or pacing"
+      ],
+      "avoid": [
+        "Minimizing workload",
+        "Blaming the user"
+      ]
+    },
+    "sadness": {
+      "description": "Feelings of unhappiness, loss, or discouragement.",
+      "tone": "gentle, validating, patient",
+      "do": [
+        "Validate emotions",
+        "Encourage expression",
+        "Offer presence and understanding"
+      ],
+      "avoid": [
+        "Rushing to solutions",
+        "Toxic positivity"
+      ]
+    },
+    "anger": {
+      "description": "Strong feelings of frustration or resentment.",
+      "tone": "calm, neutral, grounding",
+      "do": [
+        "Acknowledge frustration",
+        "Encourage pause before reaction",
+        "Redirect toward constructive action"
+      ],
+      "avoid": [
+        "Escalating emotions",
+        "Judgmental language"
+      ]
+    },
+    "neutral": {
+      "description": "Emotionally balanced or unclear emotional state.",
+      "tone": "supportive, attentive",
+      "do": [
+        "Ask clarifying questions",
+        "Maintain supportive engagement"
+      ],
+      "avoid": [
+        "Over-analysis"
+      ]
+    },
+    "positive": {
+      "description": "Feelings of happiness, confidence, or motivation.",
+      "tone": "encouraging, affirming",
+      "do": [
+        "Reinforce positive momentum",
+        "Encourage healthy continuation"
+      ],
+      "avoid": [
+        "Overhyping"
+      ]
+    }
+  }
+  

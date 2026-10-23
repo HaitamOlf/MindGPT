@@ -1,0 +1,39 @@
+{
+    "exam_stress": {
+      "context": "Academic pressure and performance anxiety",
+      "recommended_actions": [
+        "Encourage study planning",
+        "Normalize exam-related stress",
+        "Suggest breaks and rest",
+        "Promote realistic expectations"
+      ],
+      "avoid": [
+        "Minimizing importance",
+        "Excessive pressure"
+      ]
+    },
+    "burnout": {
+      "context": "Emotional exhaustion due to prolonged stress",
+      "recommended_actions": [
+        "Encourage rest",
+        "Promote boundary setting",
+        "Validate exhaustion"
+      ],
+      "avoid": [
+        "Encouraging pushing through exhaustion"
+      ]
+    },
+    "low_motivation": {
+      "context": "Difficulty initiating or sustaining effort",
+      "recommended_actions": [
+        "Encourage small steps",
+        "Reinforce past successes",
+        "Reduce pressure"
+      ],
+      "avoid": [
+        "Shaming",
+        "Comparisons"
+      ]
+    }
+  }
+  
