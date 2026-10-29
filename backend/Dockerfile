@@ -1,7 +1,7 @@
 # Pinned by digest, not just tag — the "pinned base image" non-negotiable from
 # docs/ARCHITECTURE.md §7.1 / backend/README.md. Digest verified against Docker Hub's
 # registry API for python:3.12.7-slim-bookworm; re-verify before bumping.
-FROM python:3.12.7-slim-bookworm@sha256:1c44018d7eb40488f29e7c6ad4991d3200507e14dca71b94fe61011815e98155
+FROM python:3.15.0-slim-bookworm@sha256:0e019bbdfb5d9874cb2389f1c2884b64aa2ac97c99960b5bc521cef978c0617d
 
 WORKDIR /app
 
